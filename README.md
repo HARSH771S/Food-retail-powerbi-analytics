@@ -6,13 +6,13 @@ An interactive Power BI project for exploring food retail sales, products, store
 
 ## Dashboard preview
 
-![Food Retail Power BI dashboard layout preview](docs/images/dashboard-preview.svg)
+![Food Retail Power BI dashboard layout preview](docs/images/dashboard-preview.png)
 
 This is a layout illustration. It intentionally contains no business KPI values.
 
 ## Data model
 
-![Food retail Power BI data model](docs/images/data-model.svg)
+![Food retail Power BI data model](docs/images/data-model.png)
 
 The model uses shared dimensions and separate fact tables. Relationships filter from dimensions to facts using a one-to-many pattern. Inventory has no date relationship because the sample does not contain a reliable snapshot date. Order header totals remain separate from sales lines to prevent double-counting.
 
@@ -89,18 +89,6 @@ For these reasons, the report labels measures as recorded source amounts and inc
 5. Refresh the queries and confirm the model relationships.
 6. Review the Data Quality page before interpreting any figures.
 
-## Suggested repository structure
-
-```text
-food-retail-powerbi-analytics/
-├── README.md
-├── report/
-│   └── Food_Retail_Report.pbix
-└── docs/
-    ├── Power_BI_build_guide.md
-    └── images/
-        ├── dashboard-preview.svg
-        └── data-model.svg
 ```
 
 
