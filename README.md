@@ -1,82 +1,39 @@
 # Food Retail Operations Analytics | Power BI
 
-An interactive, multi-page Power BI report project for exploring food retail sales, products, stores, customers, inventory, payments, returns, waste, and shipments. The project also demonstrates data preparation, dimensional modeling, DAX measures, and data-quality checks.
+An interactive Power BI project for exploring food retail sales, products, stores, customers, inventory, payments, returns, waste, and shipments.
 
-**Suggested GitHub repository name:** `food-retail-powerbi-analytics`
+**GitHub repository name:** `food-retail-powerbi-analytics`
 
-## Project overview
+## Dashboard preview
 
-The report is designed around separate transaction facts and shared dimensions. This makes it possible to analyze each business process at its own level of detail while using shared product, customer, store, date, and order filters.
+![Food Retail Power BI dashboard layout preview](docs/images/dashboard-preview.svg)
 
-The supplied sample data needs validation before its values can be treated as company results. The report labels source amounts clearly and includes a data-quality page so users can see the known limitations.
-
-## Report pages
-
-The report design has six visible pages and two supporting pages:
-
-1. **Overview** — selected activity measures, daily trend, source-category comparison, and store ranking.
-2. **Sales & Products** — product rankings, daily units, and a category-to-product matrix.
-3. **Stores & Customers** — store and customer activity with an order comparison table.
-4. **Stock, Waste & Returns** — inventory extract, waste and returns, and related limitations.
-5. **Payments & Shipments** — recorded payments, shipment records, and shipment date checks.
-6. **Data Quality** — selected reconciliation and chronology checks with metric definitions.
-7. **Order Detail** *(hidden)* — order lines, payments, and returns, reached through drillthrough.
-8. **Product Tooltip** *(hidden)* — selected product measures and their definitions.
+This is a layout illustration. It intentionally contains no business KPI values.
 
 ## Data model
 
-The semantic model uses dimensions for filtering and facts for transaction activity. Relationships are designed as one-to-many, single-direction filters from dimensions to facts.
+![Food retail Power BI data model](docs/images/data-model.svg)
 
-```mermaid
-flowchart LR
-    Date[DimDate] --> Orders[FactOrders]
-    Date --> Sales[FactSales]
-    Date --> Payments[FactPayments]
-    Date --> Returns[FactReturns]
-    Date --> Waste[FactWaste]
-    Date --> Shipments[FactShipments]
-
-    Product[DimProduct] --> Sales
-    Product --> Returns
-    Product --> Inventory[FactInventory]
-    Product --> Waste
-
-    Customer[DimCustomer] --> Orders
-    Customer --> Sales
-    Customer --> Payments
-    Customer --> Returns
-
-    Store[DimStore] --> Orders
-    Store --> Sales
-    Store --> Payments
-    Store --> Returns
-    Store --> Inventory
-    Store --> Waste
-    Store --> Shipments
-
-    Employee[DimEmployee] --> Orders
-    Employee --> Sales
-    Supplier[DimSupplier] --> Shipments
-
-    Order[DimOrder] --> Orders
-    Order --> Sales
-    Order --> Payments
-    Order --> Returns
-
-    Quality[QualityChecks]
-```
-
-`QualityChecks` is a disconnected summary table. `FactInventory` is not related to `DimDate` because the sample does not provide a reliable inventory snapshot date. `FactSales` contains order-line data; order-header totals remain in `FactOrders` to avoid counting an order total once for each line.
-
-### Model tables
+The model uses shared dimensions and separate fact tables. Relationships filter from dimensions to facts using a one-to-many pattern. Inventory has no date relationship because the sample does not contain a reliable snapshot date. Order header totals remain separate from sales lines to prevent double-counting.
 
 **Dimensions:** `DimDate`, `DimProduct`, `DimCustomer`, `DimStore`, `DimEmployee`, `DimSupplier`, `DimOrder`.
 
 **Facts:** `FactOrders`, `FactSales`, `FactPayments`, `FactReturns`, `FactInventory`, `FactWaste`, `FactShipments`.
 
-**Quality summary:** `QualityChecks`.
+**Quality summary:** `QualityChecks` (disconnected from the business model).
 
-## Example measures
+## Report pages
+
+1. **Overview** — activity measures, daily trend, category comparison, and store ranking.
+2. **Sales & Products** — product rankings, daily units, and product matrix.
+3. **Stores & Customers** — activity by store and customer, with order detail access.
+4. **Stock, Waste & Returns** — inventory extract and recorded waste and return activity.
+5. **Payments & Shipments** — payment records, shipment records, and date checks.
+6. **Data Quality** — selected reconciliation checks and metric definitions.
+7. **Order Detail** *(hidden)* — sales lines, payments, and returns reached through drillthrough.
+8. **Product Tooltip** *(hidden)* — selected product metrics and definitions.
+
+## Example DAX measures
 
 ```dax
 Recorded Units Sold =
@@ -98,55 +55,53 @@ DIVIDE (
 )
 ```
 
-These measures describe the supplied fields. They are not, by themselves, validated net sales, profit, or cash collection measures.
+These measures describe source fields. They should not be interpreted as validated net sales, profit, or successful cash collection.
 
-## Data quality and interpretation
+## Dataset and limitations
 
-The source archive contains 15 CSV files, each with 1,200 rows and 10 columns. The inspected transaction dates span January 1–28, 2025. The data contains no blank cells or duplicate primary IDs in the inspected files, but several business fields and cross-table comparisons need correction.
+The supplied archive contains 15 CSV files, each with 1,200 rows and 10 columns. The inspected transaction dates cover January 1–28, 2025. The files have no blank cells or duplicate primary IDs in the inspected data, but multiple fields and business rules need correction.
 
-Examples of issues found:
-
-- Tax, discount, rating, reorder-level, and waste-cost columns contain text in place of numbers.
+- Tax, discount, rating, reorder-level, and waste-cost fields contain text where numeric values are expected.
 - Every order header amount differs from the calculated gross value of its order lines.
-- 589 return records have a quantity greater than the sold quantity on the matching order and product.
-- 577 returns are dated before their corresponding order.
+- 589 returns exceed the sold quantity for the matching order and product.
+- 577 returns are dated before their corresponding orders.
 - 596 shipments arrive before their shipping date.
-- The product category labels do not match the supplied Categories table.
-- The inventory `LastUpdated` field is not a valid date.
+- Product category labels do not match the supplied Categories table.
+- The inventory `LastUpdated` field does not contain valid dates.
+- Currency is unspecified, and the sample covers less than one month.
 
-The report therefore uses explicit names such as **Recorded Order Amount** and **Calculated Gross Line Value**. Currency is unspecified. The sample does not support dependable profit, customer-retention, promotion-ROI, inventory-turnover, or year-over-year reporting.
+For these reasons, the report labels measures as recorded source amounts and includes a data-quality page. Profit, customer retention, promotion ROI, inventory turnover, and year-over-year performance are not supported by this extract.
 
-## Tools and techniques
+## Tools
 
 - Power BI Desktop
-- Power Query for import, cleaning, type conversion, references, and merges
-- DAX for measures, calculated labels, date fields, and quality checks
-- Star-schema modeling with shared dimensions and separate fact tables
+- Power Query for importing, profiling, cleaning, typing, referencing, and merging data
+- DAX for measures, labels, date fields, and quality checks
+- Dimensional modeling with shared dimensions and separate facts
 - Matrix visuals, slicers, drillthrough, report-page tooltips, bookmarks, and page navigation
 
 ## Getting started
 
 1. Install Power BI Desktop.
-2. Extract the source CSV files to a local data folder.
-3. In Power BI Desktop, open the `.pbix` file from this project. If it is not included, create a new PBIX and follow the report build guide.
-4. In Power Query, set the `pDataFolder` parameter to the folder containing the extracted CSV files.
-5. Refresh the queries, then confirm that the prepared tables load and the relationship diagram matches the model above.
-6. Review the data-quality page before interpreting any business figures.
+2. Extract the CSV files to a local folder.
+3. Open the project `.pbix` file. If it is not included yet, create a PBIX and follow the model and report build instructions.
+4. In Power Query, set the `pDataFolder` parameter to the extracted CSV folder.
+5. Refresh the queries and confirm the model relationships.
+6. Review the Data Quality page before interpreting any figures.
 
-## Suggested repository layout
+## Suggested repository structure
 
 ```text
 food-retail-powerbi-analytics/
 ├── README.md
 ├── report/
 │   └── Food_Retail_Report.pbix
-├── docs/
-│   └── Power_BI_build_guide.md
-├── screenshots/
-│   ├── overview.png
-│   └── data-quality.png
-└── data/
-    └── (optional, only if the data is cleared for sharing)
+└── docs/
+    ├── Power_BI_build_guide.md
+    └── images/
+        ├── dashboard-preview.svg
+        └── data-model.svg
 ```
+
 
 
