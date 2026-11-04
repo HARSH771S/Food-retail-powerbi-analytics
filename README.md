@@ -89,7 +89,7 @@ For these reasons, the report labels measures as recorded source amounts and inc
 5. Refresh the queries and confirm the model relationships.
 6. Review the Data Quality page before interpreting any figures.
 
-```
+
 
 
 
